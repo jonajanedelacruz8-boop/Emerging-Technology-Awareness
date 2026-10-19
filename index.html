@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechAware - Emerging Technology & Ethics Awareness</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0d1b;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Deep dark glow background inspired by the reference layout */
+        .ambient-bg {
+            background: 
+                radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(147, 51, 234, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(30, 27, 75, 0.8) 0%, #0b0d1b 100%);
+                filter: brightness(1);
+        }
+
+        /* Glassmorphism card effects */
+        .glass-card {
+            background: rgba(23, 27, 54, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card-hover {
+            transition: all 0.3s ease;
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(236, 72, 153, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(236, 72, 153, 0.15);
+        }
+
+        /* Glowing Neon Pill Buttons */
+        .btn-neon-pink {
+            background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+            transition: all 0.3s ease;
+        }
+        .btn-neon-pink:hover {
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.8);
+            transform: scale(1.03);
+        }
+
+        .btn-outline-glow {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-glow:hover {
+            border-color: #d946ef;
+            background: rgba(217, 70, 239, 0.1);
+            box-shadow: 0 0 15px rgba(217, 70, 239, 0.3);
+            transform: scale(1.03);
+        }
+
+        /* Modern 3D Hologram Cube CSS Effect */
+        .cube-container {
+            perspective: 1000px;
+            width: 220px;
+            height: 220px;
+        }
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 18s infinite linear;
+        }
+        .cube-face {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 2px solid rgba(236, 72, 153, 0.7);
+            background: rgba(147, 51, 234, 0.15);
+            backdrop-filter: blur(6px);
+            box-shadow: inset 0 0 25px rgba(236, 72, 153, 0.3), 0 0 20px rgba(147, 51, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            color: #f472b6;
+        }
+        .face-front  { transform: rotateY(  0deg) translateZ(110px); }
+        .face-back   { transform: rotateY(180deg) translateZ(110px); }
+        .face-right  { transform: rotateY( 90deg) translateZ(110px); }
+        .face-left   { transform: rotateY(-90deg) translateZ(110px); }
+        .face-top    { transform: rotateX( 90deg) translateZ(110px); }
+        .face-bottom { transform: rotateX(-90deg) translateZ(110px); }
+
+        @keyframes rotateCube {
+            from { transform: rotateX(-15deg) rotateY(0deg); }
+            to { transform: rotateX(-15deg) rotateY(360deg); }
+        }
+
+        /* Navigation link active indicator */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link.active {
+            color: #ec4899;
+            font-weight: 700;
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #ec4899;
+            border-radius: 2px;
+            box-shadow: 0 0 8px #ec4899;
+        }
+
+        /* Canvas background overlay */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            background: radial-gradient(circle at 50% 20%, #201a40 0%, #0c0d1b 75%, #05060d 100%);
+            pointer-events: none;
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 30%, rgba(20, 15, 38, 0.3) 0%, rgba(11, 13, 27, 0.75) 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="ambient-bg min-h-screen flex flex-col justify-between selection:bg-pink-500 selection:text-white relative">
+
+    <!-- CANVAS PARTICLES BACKGROUND -->
+    <canvas id="particle-canvas"></canvas>
+    <div class="video-overlay"></div>
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-pink-500/30">
+                    <i class="fa-solid font-black text-lg">F</i>
+                </div>
+                <span class="text-2xl font-extrabold tracking-tight text-white">TechAware</span>
+            </div>
+
+            <!-- Desktop Nav Items (5 Required Pages + Quiz) -->
+            <nav class="hidden lg:flex items-center space-x-6 text-sm font-medium text-slate-300">
+                <button onclick="switchTab('home')" id="nav-home" class="nav-link active py-2 hover:text-pink-400">Home</button>
+                <button onclick="switchTab('ai')" id="nav-ai" class="nav-link py-2 hover:text-pink-400">AI</button>
+                <button onclick="switchTab('iot')" id="nav-iot" class="nav-link py-2 hover:text-pink-400">Internet of Things</button>
+                <button onclick="switchTab('cloud')" id="nav-cloud" class="nav-link py-2 hover:text-pink-400">Cloud & Big Data</button>
+                <button onclick="switchTab('ethics')" id="nav-ethics" class="nav-link py-2 hover:text-pink-400">Responsible Use</button>
+            </nav>
+
+            <!-- Quick Action Button -->
+            <div class="hidden md:flex items-center gap-3">
+                <button onclick="switchTab('quiz')" id="nav-quiz-btn" class="btn-neon-pink text-white px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-question"></i> Take Quiz
+                </button>
+            </div>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button onclick="toggleMobileMenu()" class="lg:hidden text-slate-300 hover:text-white text-2xl focus:outline-none">
+                <i class="fa-solid fa-bars" id="menu-icon"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Navigation Dropdown -->
+        <div id="mobile-menu" class="hidden lg:hidden glass-card border-t border-slate-800 px-6 py-4 flex flex-col space-y-3">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="text-left text-slate-200 hover:text-pink-400 py-1 font-medium">Home</button>
+            <button onclick="switchTab('ai'); toggleMobileMenu();" class="text-left text-slate-200 hover:text-pink-400 py-1 font-medium">AI</button>
+            <button onclick="switchTab('iot'); toggleMobileMenu();" class="text-left text-slate-200 hover:text-pink-400 py-1 font-medium">Internet of Things</button>
+            <button onclick="switchTab('cloud'); toggleMobileMenu();" class="text-left text-slate-200 hover:text-pink-400 py-1 font-medium">Cloud & Big Data</button>
+            <button onclick="switchTab('ethics'); toggleMobileMenu();" class="text-left text-slate-200 hover:text-pink-400 py-1 font-medium">Responsible Use & Ethics</button>
+            <button onclick="switchTab('quiz'); toggleMobileMenu();" class="text-left text-slate-200 hover:text-pink-400 py-1 font-medium">Start Tech Quiz</button>
+            <button onclick="scrollToBottom(); toggleMobileMenu();" class="text-left text-slate-200 hover:text-pink-400 py-1 font-medium">About & Contact</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+
+        <!-- PAGE 1: HOME PAGE -->
+        <section id="page-home" class="page-content space-y-16">
+            <!-- Hero Banner -->
+            <div class="relative rounded-3xl glass-card p-8 md:p-16 overflow-hidden min-h-[480px] flex items-center">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center w-full relative z-10">
+                    <div class="lg:col-span-7 space-y-6">
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+                            Fielding <br/><span class="bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent">Brilliance</span>
+                        </h1>
+                        <p class="text-slate-300 text-lg sm:text-xl font-light max-w-xl">
+                            Empowering students and community readers with knowledge on emerging technologies, computing ethics, and digital transformation.
+                        </p>
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <button onclick="switchTab('ai')" class="btn-neon-pink text-white px-8 py-3.5 rounded-full font-semibold text-base flex items-center gap-2">
+                                Explore Topics <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                            <button onclick="switchTab('quiz')" class="btn-outline-glow text-white px-8 py-3.5 rounded-full font-semibold text-base flex items-center gap-2">
+                                Take Quiz <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Glowing 3D Cube Graphic -->
+                    <div class="lg:col-span-5 flex justify-center lg:justify-end items-center my-8 lg:my-0">
+                        <div class="cube-container">
+                            <div class="cube">
+                                <div class="cube-face face-front"><i class="fa-solid fa-brain"></i></div>
+                                <div class="cube-face face-back"><i class="fa-solid fa-cloud"></i></div>
+                                <div class="cube-face face-right"><i class="fa-solid fa-network-wired"></i></div>
+                                <div class="cube-face face-left"><i class="fa-solid fa-database"></i></div>
+                                <div class="cube-face face-top"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div class="cube-face face-bottom"><i class="fa-solid fa-microchip"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Modules Section (Matching 2-Column Design) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch relative">
+                <div class="lg:col-span-5 glass-card rounded-3xl p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">
+                    <div class="space-y-6 z-10">
+                        <h2 class="text-3xl sm:text-4xl font-bold text-white leading-snug">
+                            We specialize in building <span class="text-purple-400">digital awareness</span> for smart communities.
+                        </h2>
+                        <p class="text-slate-300 text-base leading-relaxed">
+                            Emerging technologies shape our homes, classrooms, and daily lives. Understanding AI, IoT, Cloud Computing, Big Data, and Computing Ethics equips us to navigate modern tech responsibly and safely.
+                        </p>
+                    </div>
+                    <div class="pt-8 z-10">
+                        <button onclick="scrollToBottom()" class="btn-outline-glow text-white px-6 py-3 rounded-full text-sm font-semibold inline-flex items-center gap-2">
+                            Our Mission <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 glass-card rounded-3xl p-8 sm:p-10 space-y-6">
+                    <div class="flex gap-5 items-start cursor-pointer group" onclick="switchTab('ai')">
+                        <div class="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 text-xl group-hover:scale-110 transition shrink-0">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-pink-400 transition">Artificial Intelligence (AI)</h3>
+                            <p class="text-slate-400 text-sm mt-1">Machine learning models, speech recognition, and real-time streaming recommendation engines.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-5 items-start cursor-pointer group" onclick="switchTab('iot')">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl group-hover:scale-110 transition shrink-0">
+                            <i class="fa-solid fa-wifi"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-purple-400 transition">Internet of Things (IoT)</h3>
+                            <p class="text-slate-400 text-sm mt-1">Smart thermostats, wearables, and interconnected home appliances communicating via sensors.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-5 items-start cursor-pointer group" onclick="switchTab('cloud')">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl group-hover:scale-110 transition shrink-0">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition">Cloud & Big Data</h3>
+                            <p class="text-slate-400 text-sm mt-1">Remote file synchronization, massive server storage, and live traffic route calculation.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-5 items-start cursor-pointer group" onclick="switchTab('ethics')">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl group-hover:scale-110 transition shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition">Responsible Use & Ethics</h3>
+                            <p class="text-slate-400 text-sm mt-1">Navigating privacy, digital footprints, cyber hygiene, deepfakes, and environmental data impacts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 2: ARTIFICIAL INTELLIGENCE -->
+        <section id="page-ai" class="page-content hidden space-y-10">
+            <div class="glass-card rounded-3xl p-8 sm:p-12 border-l-4 border-l-pink-500">
+                <span class="text-xs font-bold uppercase tracking-widest text-pink-400 bg-pink-500/10 px-3 py-1 rounded-full">Topic 01</span>
+                <h1 class="text-3xl sm:text-5xl font-black text-white mt-3 mb-4">Artificial Intelligence (AI)</h1>
+                <p class="text-slate-300 text-lg leading-relaxed max-w-4xl">
+                    Artificial Intelligence refers to computer systems engineered to simulate human intelligence. This includes learning from past experience, understanding natural spoken language, recognizing complex images, and making autonomous decisions.
+                </p>
+            </div>
+
+            <!-- Everyday Example -->
+            <div class="glass-card rounded-3xl p-8 bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-pink-500/20">
+                <div class="flex items-center gap-3 text-pink-400 text-xl font-bold mb-3">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <h2>Everyday Example: Streaming Recommendations & Virtual Assistants</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    When watching videos on Netflix or YouTube, AI algorithms continuously process your watch history, search queries, and skips to recommend personalized content. Similarly, voice assistants like <strong>Apple Siri</strong> or <strong>Google Assistant</strong> use Natural Language Processing (NLP) to parse your voice and answer instantly.
+                </p>
+            </div>
+
+            <!-- Benefits & Limitations -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-emerald-500">
+                    <div class="flex items-center gap-3 text-emerald-400 font-bold text-xl mb-4">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <h3>Benefits of AI</h3>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 text-sm">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Task Automation:</strong> Completes repetitive tasks rapidly without fatigue.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Rapid Analysis:</strong> Processes massive datasets in seconds.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Personalized Education:</strong> Adapts study material to individual student learning paces.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Medical Diagnostics:</strong> Assists medical staff in identifying anomalies in scans early.</span></li>
+                    </ul>
+                </div>
+
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-rose-500">
+                    <div class="flex items-center gap-3 text-rose-400 font-bold text-xl mb-4">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h3>Limitations & Risks</h3>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 text-sm">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Algorithmic Bias:</strong> Learns and reinforces historical biases present in training data.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Job Displacement:</strong> Automates routine cognitive and administrative tasks.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Lack of Genuine Intuition:</strong> Lacks true emotional comprehension or moral reasoning.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Data Over-reliance:</strong> Requires extensive user personal data harvesting to train effectively.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 3: INTERNET OF THINGS -->
+        <section id="page-iot" class="page-content hidden space-y-10">
+            <div class="glass-card rounded-3xl p-8 sm:p-12 border-l-4 border-l-purple-500">
+                <span class="text-xs font-bold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full">Topic 02</span>
+                <h1 class="text-3xl sm:text-5xl font-black text-white mt-3 mb-4">Internet of Things (IoT)</h1>
+                <p class="text-slate-300 text-lg leading-relaxed max-w-4xl">
+                    The Internet of Things (IoT) is a global network of physical hardware devices—embedded with sensors, microcontrollers, and communication modules—that automatically gather, send, and act on data without human intervention.
+                </p>
+            </div>
+
+            <!-- Everyday Example -->
+            <div class="glass-card rounded-3xl p-8 bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-500/20">
+                <div class="flex items-center gap-3 text-purple-400 text-xl font-bold mb-3">
+                    <i class="fa-solid fa-house-signal"></i>
+                    <h2>Everyday Example: Smart Fitness Watches & Connected Appliances</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    A <strong>smartwatch (Apple Watch, Fitbit, or Xiaomi Band)</strong> continuously tracks heart rates, step counts, and sleep stages, automatically uploading health metrics to your cloud account. Another example is a smartphone-controlled smart thermostat (Nest) that adjusts cooling automatically when you leave home.
+                </p>
+            </div>
+
+            <!-- Benefits & Limitations -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-emerald-500">
+                    <div class="flex items-center gap-3 text-emerald-400 font-bold text-xl mb-4">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <h3>Benefits of IoT</h3>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 text-sm">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Convenience:</strong> Instant remote control of home lighting, security, and climate.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Energy Efficiency:</strong> Automated power scheduling minimizes electrical waste.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Health Monitoring:</strong> Immediate notifications to relatives or medical services during emergencies.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Smart City Infrastructure:</strong> Dynamic traffic management and automated waste collection.</span></li>
+                    </ul>
+                </div>
+
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-rose-500">
+                    <div class="flex items-center gap-3 text-rose-400 font-bold text-xl mb-4">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h3>Limitations & Risks</h3>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 text-sm">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Cybersecurity Threats:</strong> Weak default passwords on smart cameras leave networks exposed.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Network Dependency:</strong> Disconnected internet causes smart hardware to lose features.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Privacy Intrusion:</strong> Continuous background tracking enables corporate user profiling.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Interoperability Issues:</strong> Devices from rival manufacturers often fail to sync smoothly.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 4: CLOUD & BIG DATA -->
+        <section id="page-cloud" class="page-content hidden space-y-10">
+            <div class="glass-card rounded-3xl p-8 sm:p-12 border-l-4 border-l-indigo-500">
+                <span class="text-xs font-bold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full">Topic 03</span>
+                <h1 class="text-3xl sm:text-5xl font-black text-white mt-3 mb-4">Cloud Computing & Big Data</h1>
+                <p class="text-slate-300 text-lg leading-relaxed max-w-4xl">
+                    <strong>Cloud Computing</strong> delivers on-demand computing services—including remote storage, processing power, and databases—over the internet. 
+                    <strong>Big Data</strong> describes massive datasets that are computationally analyzed to uncover hidden trends, patterns, and behaviors.
+                </p>
+            </div>
+
+            <!-- Everyday Example -->
+            <div class="glass-card rounded-3xl p-8 bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-indigo-500/20">
+                <div class="flex items-center gap-3 text-indigo-400 text-xl font-bold mb-3">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <h2>Everyday Example: Google Drive & Waze / Google Maps Navigation</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    When uploading assignment documents to <strong>Google Drive, OneDrive, or iCloud</strong>, cloud computing allows you to open them on any device. Meanwhile, navigation tools like <strong>Waze or Google Maps</strong> collect real-time location and speed data from millions of users simultaneously (Big Data) to instantly calculate traffic delays and re-route drivers.
+                </p>
+            </div>
+
+            <!-- Benefits & Limitations -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-emerald-500">
+                    <div class="flex items-center gap-3 text-emerald-400 font-bold text-xl mb-4">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <h3>Benefits</h3>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 text-sm">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Universal Access:</strong> Retrieve documents securely from any location with internet access.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Scalability:</strong> Expand digital storage instantly without buying physical hard drives.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Predictive Insights:</strong> Enables weather forecasting, epidemic tracking, and economic planning.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-400 mt-1"></i> <span><strong>Real-time Collaboration:</strong> Multiple users editing shared documents online simultaneously.</span></li>
+                    </ul>
+                </div>
+
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-rose-500">
+                    <div class="flex items-center gap-3 text-rose-400 font-bold text-xl mb-4">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h3>Limitations & Risks</h3>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 text-sm">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Service Outages:</strong> Data center downtime cuts off access to critical work files.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Data Breaches:</strong> Centralized cloud servers are high-priority targets for cyberattacks.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Recurring Costs:</strong> Subscription costs scale up as stored data volume expands.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-xmark text-rose-400 mt-1"></i> <span><strong>Data Sovereignty:</strong> Ambiguity regarding which jurisdiction controls remote data server farms.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 5: RESPONSIBLE USE & ETHICS (NEW MAIN SECTION) -->
+        <section id="page-ethics" class="page-content hidden space-y-10">
+            <div class="glass-card rounded-3xl p-8 sm:p-12 border-l-4 border-l-emerald-500">
+                <span class="text-xs font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full">Topic 04</span>
+                <h1 class="text-3xl sm:text-5xl font-black text-white mt-3 mb-4">Responsible Use & Computing Ethics</h1>
+                <p class="text-slate-300 text-lg leading-relaxed max-w-4xl">
+                    As emerging technologies become woven into our daily existence, ethical awareness ensures we protect personal privacy, avoid digital misinformation, maintain academic integrity, and promote a safer cyber environment for everyone.
+                </p>
+            </div>
+
+            <!-- 4 Pillar Ethical Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Pillar 1 -->
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-pink-500 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 text-xl">
+                        <i class="fa-solid fa-shoe-prints"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Digital Footprint & Personal Privacy</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Every post, search query, location check-in, and app permission builds a permanent digital footprint. Responsible users regularly review app permissions, use strong authentication, and remain conscious of public data exposure.
+                    </p>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-purple-500 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl">
+                        <i class="fa-solid fa-masks-theater"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Deepfakes & Misinformation</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Generative AI tools can create ultra-realistic fake images, audio impersonations, and videos (deepfakes). Computing ethics requires critical media literacy—verifying sources before sharing content online to prevent harm.
+                    </p>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-indigo-500 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Academic Integrity in the AI Era</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Generative AI models should be used as study aids, research brainstormers, or tutors—never as a tool to bypass actual learning or pass off machine output as original personal student work.
+                    </p>
+                </div>
+
+                <!-- Pillar 4 -->
+                <div class="glass-card glass-card-hover rounded-3xl p-8 border-t-2 border-t-emerald-500 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Environmental Impact of Computing</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Training complex AI models and powering massive cloud data servers demands substantial electricity and cooling resources. Sustainable technology adoption emphasizes energy-efficient computing and electronic waste recycling.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 6: 10-ITEM INTERACTIVE QUIZ -->
+        <section id="page-quiz" class="page-content hidden space-y-10">
+            <div class="glass-card rounded-3xl p-8 sm:p-12 border-l-4 border-l-pink-500 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-pink-400 bg-pink-500/10 px-3 py-1 rounded-full">Interactive Assessment</span>
+                    <h1 class="text-3xl sm:text-5xl font-black text-white mt-3 mb-2">Emerging Tech & Ethics Quiz</h1>
+                    <p class="text-slate-300 text-base max-w-2xl">
+                        Test your knowledge on AI, IoT, Cloud Computing, Big Data, and responsible computing ethics. Select the best answer for each item.
+                    </p>
+                </div>
+                <div id="quiz-progress-badge" class="glass-card px-6 py-4 rounded-2xl border border-pink-500/30 flex flex-col items-center shrink-0">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Current Score</span>
+                    <span id="score-counter" class="text-3xl font-extrabold text-pink-400 mt-1">0 / 10</span>
+                </div>
+            </div>
+
+            <!-- Quiz Questions Container -->
+            <div id="quiz-container" class="space-y-6"></div>
+
+            <!-- Results Summary -->
+            <div id="quiz-summary" class="hidden glass-card rounded-3xl p-8 md:p-12 text-center space-y-6 border border-pink-500/40">
+                <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white text-3xl shadow-lg shadow-pink-500/40">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 class="text-3xl font-extrabold text-white">Quiz Completed!</h2>
+                <p id="summary-text" class="text-slate-300 text-lg max-w-md mx-auto"></p>
+                <button onclick="resetQuiz()" class="btn-neon-pink text-white px-8 py-3.5 rounded-full font-semibold text-base inline-flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Retake Quiz
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER SECTION (WITH ABOUT US & CONTACT) -->
+    <footer id="footer-section" class="glass-card border-t border-slate-800/80 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <!-- ABOUT US SECTION -->
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 text-pink-400 text-xs font-bold tracking-wider uppercase">
+                        <i class="fa-solid fa-circle-info"></i> About Us
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white">Empowering Communities Through Technology Literacy</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        TechAware is an educational digital initiative dedicated to educating students, educators, and community members on fast-evolving technology trends. Our goal is to bridge complex computing concepts with accessible real-world knowledge, advocating for safe, ethical, and empowered digital citizenship.
+                    </p>
+                    <div class="flex items-center gap-6 pt-2 text-slate-400 text-sm">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-book-open text-pink-400"></i> Free Educational Content
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-users text-purple-400"></i> Community Driven
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTACT SECTION -->
+                <div class="lg:col-span-6 glass-card rounded-3xl p-8 border border-slate-700/50 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold tracking-wider uppercase">
+                        <i class="fa-solid fa-envelope"></i> Contact Us
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Get in Touch with Our Team</h3>
+
+                    <!-- Display Email Address -->
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-at"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Official Contact Email</p>
+                            <a href="mailto:jonajanedelacruz8@gmail.com" class="text-white font-medium hover:text-pink-400 transition break-all">
+                                jonajanedelacruz8@gmail.com
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <form onsubmit="handleFormSubmit(event)" class="space-y-4 pt-2">
+                        <div>
+                            <input type="text" id="sender-name" required placeholder="Your Name" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-pink-500 transition">
+                        </div>
+                        <div>
+                            <input type="email" id="sender-email" required placeholder="Your Email Address" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-pink-500 transition">
+                        </div>
+                        <div>
+                            <textarea id="sender-message" rows="3" required placeholder="Your Message or Inquiry..." class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-pink-500 transition"></textarea>
+                        </div>
+                        <button type="submit" class="w-full btn-neon-pink text-white py-3 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+
+                    <div id="form-feedback" class="hidden p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-circle-check text-xl"></i>
+                        <span>Thank you! Message prepared for <strong>jonajanedelacruz8@gmail.com</strong>.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom Bar -->
+            <div class="border-t border-slate-800/80 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+                <p>&copy; 2026 TechAware Initiative. Designed for Student & Community Education.</p>
+                <div class="flex gap-6">
+                    <a href="mailto:jonajanedelacruz8@gmail.com" class="hover:text-pink-400 transition">jonajanedelacruz8@gmail.com</a>
+                    <button onclick="switchTab('quiz')" class="hover:text-pink-400 transition">Tech Quiz</button>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT FOR TAB SWITCHING & QUIZ LOGIC -->
+    <script>
+        // 10-Item Quiz Data
+        const quizData = [
+            {
+                question: "Which field of computer science focuses on building systems capable of simulating human intelligence, such as voice recognition and decision making?",
+                options: ["Internet of Things (IoT)", "Artificial Intelligence (AI)", "Cloud Storage", "Quantum Cryptography"],
+                answer: 1,
+                explanation: "Artificial Intelligence (AI) simulates human cognition, enabling computer systems to learn, solve problems, and analyze language."
+            },
+            {
+                question: "Smartwatches, connected thermostats, and automated security cameras are prime examples of which technology?",
+                options: ["Cloud Computing", "Big Data Analytics", "Internet of Things (IoT)", "Augmented Reality"],
+                answer: 2,
+                explanation: "The Internet of Things (IoT) consists of physical hardware devices with sensors and connectivity to exchange data automatically."
+            },
+            {
+                question: "Which of the following best defines 'Cloud Computing'?",
+                options: ["Physical hard drives mounted inside a personal laptop", "Delivering computing services and file storage over the internet", "Satellite radio broadcasting", "A cooling unit for data center servers"],
+                answer: 1,
+                explanation: "Cloud computing allows users to access files, applications, and computing infrastructure remotely via the internet."
+            },
+            {
+                question: "Real-time traffic apps like Google Maps aggregate live speed data from millions of phone users simultaneously. What concept is this?",
+                options: ["Big Data Analytics", "Virtual Reality", "Manual Data Logging", "Symmetric Encryption"],
+                answer: 0,
+                explanation: "Big Data involves processing massive streams of information to analyze real-time trends and patterns."
+            },
+            {
+                question: "What is an ethical challenge associated with deploying Artificial Intelligence models?",
+                options: ["Zero electrical consumption", "Algorithmic bias reinforced by historical training data", "Inability to function on cloud servers", "100% human emotional understanding"],
+                answer: 1,
+                explanation: "AI models learn from historical datasets which can reflect human biases, leading to unfair outcomes if uncorrected."
+            },
+            {
+                question: "How can individuals best secure their IoT devices like smart cameras against unauthorized network access?",
+                options: ["Keep default factory passwords", "Disable firmware security updates", "Change default passwords and keep firmware updated", "Disconnect home Wi-Fi entirely"],
+                answer: 2,
+                explanation: "Changing default passwords and updating firmware addresses vulnerability exploits in smart home devices."
+            },
+            {
+                question: "What is a 'Digital Footprint'?",
+                options: ["The diagonal screen measurement of a smartphone", "The trail of data and personal activity left online through internet usage", "A carbon emission metric for hardware manufacturing", "A trackpad gesture"],
+                answer: 1,
+                explanation: "A digital footprint consists of the trail of data left by online activity, search logs, social media posts, and app permissions."
+            },
+            {
+                question: "What is an ethical rule when using AI tools (such as ChatGPT) for school coursework?",
+                options: ["Copying entire AI outputs without citation", "Using AI as a learning aid while maintaining academic honesty and original thought", "Claiming machine-generated essays as personal writing", "Avoiding reading textbooks"],
+                answer: 1,
+                explanation: "Ethical AI usage involves leveraging AI constructively for study assistance while upholding academic integrity."
+            },
+            {
+                question: "What term describes synthetic AI-generated media designed to realistically impersonate someone's face or voice falsely?",
+                options: ["Deepfake", "Blockchain", "Cloud Backup", "Telemetry"],
+                answer: 0,
+                explanation: "Deepfakes are synthetic media created by machine learning algorithms to alter human faces or voices realistically."
+            },
+            {
+                question: "What is a major benefit of Cloud Storage services like Google Drive or iCloud for students?",
+                options: ["Files can only be opened on a single home computer", "Automatic remote backups and access to files from any web-connected device", "Guaranteed offline-only operation", "Free hardware replacements for phones"],
+                answer: 1,
+                explanation: "Cloud storage provides remote access, automatic backups, and live file collaboration from any connected device."
+            }
+        ];
+
+        let currentAnswers = new Array(quizData.length).fill(null);
+        let currentScore = 0;
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-3xl p-6 md:p-8 space-y-4 border border-slate-700/60";
+                card.id = `q-card-${idx}`;
+
+                const questionHeader = `
+                    <div class="flex items-center justify-between gap-4 border-b border-slate-800 pb-3">
+                        <span class="text-xs font-extrabold uppercase tracking-widest text-pink-400 bg-pink-500/10 px-3 py-1 rounded-full">Question ${idx + 1} of ${quizData.length}</span>
+                        <span id="status-${idx}" class="text-xs font-semibold text-slate-400">Unanswered</span>
+                    </div>
+                    <p class="text-lg font-bold text-white leading-snug">${q.question}</p>
+                `;
+
+                let optionsHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">`;
+                q.options.forEach((opt, optIdx) => {
+                    optionsHTML += `
+                        <button onclick="selectOption(${idx}, ${optIdx})" id="opt-${idx}-${optIdx}" class="text-left px-5 py-3.5 rounded-2xl glass-card border border-slate-700/80 text-slate-200 text-sm font-medium hover:border-pink-500/60 hover:bg-slate-800/50 transition flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full border border-slate-600 flex items-center justify-center text-xs font-bold text-slate-400 shrink-0">${String.fromCharCode(65 + optIdx)}</span>
+                            <span>${opt}</span>
+                        </button>
+                    `;
+                });
+                optionsHTML += `</div>`;
+
+                const explanationBox = `
+                    <div id="explanation-${idx}" class="hidden p-4 rounded-2xl text-xs sm:text-sm leading-relaxed mt-3"></div>
+                `;
+
+                card.innerHTML = questionHeader + optionsHTML + explanationBox;
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(qIndex, optIndex) {
+            if (currentAnswers[qIndex] !== null) return;
+
+            currentAnswers[qIndex] = optIndex;
+            const correctIndex = quizData[qIndex].answer;
+            const isCorrect = (optIndex === correctIndex);
+
+            const statusEl = document.getElementById(`status-${qIndex}`);
+            const expEl = document.getElementById(`explanation-${qIndex}`);
+
+            quizData[qIndex].options.forEach((_, idx) => {
+                const btn = document.getElementById(`opt-${qIndex}-${idx}`);
+                btn.classList.add('cursor-default');
+                btn.onclick = null;
+            });
+
+            const selectedBtn = document.getElementById(`opt-${qIndex}-${optIndex}`);
+            const correctBtn = document.getElementById(`opt-${qIndex}-${correctIndex}`);
+
+            if (isCorrect) {
+                currentScore++;
+                selectedBtn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+                statusEl.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Correct</span>`;
+                expEl.className = "p-4 rounded-2xl text-xs sm:text-sm bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 block";
+                expEl.innerHTML = `<strong>Correct!</strong> ${quizData[qIndex].explanation}`;
+            } else {
+                selectedBtn.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+                correctBtn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+                statusEl.innerHTML = `<span class="text-rose-400 font-bold"><i class="fa-solid fa-circle-xmark mr-1"></i> Incorrect</span>`;
+                expEl.className = "p-4 rounded-2xl text-xs sm:text-sm bg-rose-500/10 border border-rose-500/30 text-rose-300 block";
+                expEl.innerHTML = `<strong>Incorrect.</strong> ${quizData[qIndex].explanation}`;
+            }
+
+            document.getElementById('score-counter').innerText = `${currentScore} / ${quizData.length}`;
+
+            if (!currentAnswers.includes(null)) {
+                showQuizSummary();
+            }
+        }
+
+        function showQuizSummary() {
+            const summaryBox = document.getElementById('quiz-summary');
+            const summaryText = document.getElementById('summary-text');
+            summaryBox.classList.remove('hidden');
+
+            const percentage = (currentScore / quizData.length) * 100;
+            if (percentage >= 80) {
+                summaryText.innerHTML = `Outstanding! You scored <strong class="text-pink-400">${currentScore} out of 10</strong> (${percentage}%). Excellent understanding of emerging technology and computing ethics!`;
+            } else if (percentage >= 50) {
+                summaryText.innerHTML = `Good effort! You scored <strong class="text-pink-400">${currentScore} out of 10</strong> (${percentage}%). Review our topic modules to sharpen your tech literacy further!`;
+            } else {
+                summaryText.innerHTML = `You scored <strong class="text-pink-400">${currentScore} out of 10</strong> (${percentage}%). Re-read our modules and try the quiz again to boost your score!`;
+            }
+
+            summaryBox.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            currentAnswers = new Array(quizData.length).fill(null);
+            currentScore = 0;
+            document.getElementById('score-counter').innerText = `0 / ${quizData.length}`;
+            document.getElementById('quiz-summary').classList.add('hidden');
+            renderQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Tab Switching Logic for Navigation
+        function switchTab(tabId) {
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(page => page.classList.add('hidden'));
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+
+            const selectedPage = document.getElementById('page-' + tabId);
+            if (selectedPage) {
+                selectedPage.classList.remove('hidden');
+            }
+
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.add('active');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('menu-icon');
+            menu.classList.toggle('hidden');
+            if (menu.classList.contains('hidden')) {
+                icon.classList.replace('fa-xmark', 'fa-bars');
+            } else {
+                icon.classList.replace('fa-bars', 'fa-xmark');
+            }
+        }
+
+        function scrollToBottom() {
+            document.getElementById('footer-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const feedback = document.getElementById('form-feedback');
+            feedback.classList.remove('hidden');
+
+            document.getElementById('sender-name').value = '';
+            document.getElementById('sender-email').value = '';
+            document.getElementById('sender-message').value = '';
+
+            setTimeout(() => {
+                feedback.classList.add('hidden');
+            }, 6000);
+        }
+
+        // Canvas Particle Simulation
+        function initParticleBackground() {
+            const canvas = document.getElementById('particle-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const numParticles = 140;
+            const particles = [];
+
+            for (let i = 0; i < numParticles; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2.2 + 0.6,
+                    color: Math.random() > 0.4 ? 'rgba(230, 220, 255, ' : 'rgba(217, 70, 239, ',
+                    alpha: Math.random() * 0.8 + 0.2,
+                    speedY: Math.random() * 0.4 + 0.15,
+                    speedX: (Math.random() - 0.5) * 0.3,
+                    twinkleSpeed: Math.random() * 0.02 + 0.005,
+                    twinkleFactor: Math.random() * Math.PI
+                });
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, width, height);
+
+                const topGlow = ctx.createRadialGradient(width / 2, 0, 10, width / 2, 0, height * 0.7);
+                topGlow.addColorStop(0, 'rgba(168, 139, 250, 0.25)');
+                topGlow.addColorStop(0.5, 'rgba(126, 34, 206, 0.1)');
+                topGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = topGlow;
+                ctx.fillRect(0, 0, width, height);
+
+                particles.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX + Math.sin(p.twinkleFactor) * 0.2;
+                    p.twinkleFactor += p.twinkleSpeed;
+
+                    if (p.y > height + 10) {
+                        p.y = -10;
+                        p.x = Math.random() * width;
+                    }
+                    if (p.x > width + 10) p.x = -10;
+                    if (p.x < -10) p.x = width + 10;
+
+                    const currentAlpha = Math.max(0.1, Math.min(1, p.alpha + Math.sin(p.twinkleFactor) * 0.3));
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color + currentAlpha + ')';
+
+                    if (p.radius > 1.8) {
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = 'rgba(236, 72, 153, 0.8)';
+                    } else {
+                        ctx.shadowBlur = 0;
+                    }
+
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(animateParticles);
+            }
+
+            animateParticles();
+        }
+
+        window.onload = function() {
+            renderQuiz();
+            initParticleBackground();
+        };
+    </script>
+</body>
+</html>
